@@ -1,8 +1,8 @@
 #+title: FluxCD and K8s
 #+subtitle: subtitle
 #+date: <2023-04-06 Thu>
-#+draft: true
-#+tags[]: fluxcd, k8s, terraform
+#+draft: false
+#+tags[]: fluxcd k8s terraform
 
 How to manage k8s with flux, first needs to be installed some how:
 
