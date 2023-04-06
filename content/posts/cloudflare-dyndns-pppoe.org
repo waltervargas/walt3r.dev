@@ -1,0 +1,114 @@
+#+title: Dynamic DNS (DDNS) with CloudFlare for PPPoE Connections
+#+subtitle: Dynamic DNS with CloudFlare for PPPoE Connections
+#+date: 2022-01-15
+#+draft: false
+#+tags[]: selfhosting pppoe cloudflare ppp flarectl
+
+You maybe wondering what I mean by dynamic DNS for PPPoE connections, well, when
+you connect to your Internet provider using PPPoE, your public IP address may
+or may not be dynamic, it means that it will change each time you have to
+reconnect. 
+
+PPPoE connections can stop working by several reasons, when this happens your
+=ppp= daemon will try to reconnect.
+
+At this point, your connection is established, but your public IP maybe a new
+one, if you are self-hosting sites at home behind your Internet router, this
+change of your public IP can disrupt the availability of your site.
+
+Back in the days of DSL connections or Dial Up connections the alternatives to
+have a dynamic DNS solution for your always changing public IP was to pay around
+$10 bucks per year to a dynamic DNS provider such as [[no-ip.com][no-ip]].
+
+In contrast with the past, mayor DNS providers exposes an interface (API) so you
+can manage your DNS records programmatically, this opens the door for solve the
+problem of your public IP address changing on each connection automatically.
+
+* Solution
+
+The Debian package =ppp= provides a bash script under =/etc/ppp/ip-up= that will
+be called each time your =pppd= daemon have to reconnect.
+
+The script =ip-up= wil use =run-parts= to execute programs under the directory
+=/etc/ppp/ip-up.d=
+
+I added a script that uses the CloudFlare cli =flarectl= and updates
+automatically my DNS records.
+
+The script =ip-up= provides a set of environment variables that you can use:
+
+#+begin_src bash
+#    Arg  Name                          Example
+#    $1   Interface name                ppp0
+#    $2   The tty                       ttyS1
+#    $3   The link speed                38400
+#    $4   Local IP number               12.34.56.78
+#    $5   Peer  IP number               12.34.56.99
+#    $6   Optional ``ipparam'' value    foo
+
+# These variables are for the use of the scripts run by run-parts
+PPP_IFACE="$1"
+PPP_TTY="$2"
+PPP_SPEED="$3"
+PPP_LOCAL="$4"
+PPP_REMOTE="$5"
+PPP_IPPARAM="$6"
+export PPP_IFACE PPP_TTY PPP_SPEED PPP_LOCAL PPP_REMOTE PPP_IPPARAM
+#+end_src
+
+I am passing the value of the environment variable =$PPP_LOCAL= that contains my
+current public IP address to =flarectl= in order to update my DNS records.
+
+The following script lives under =/etc/ppp/ip-up.d= and it's still a
+work in progress, but it's working fine so far:
+
+#+begin_src bash
+#!/bin/sh
+#
+# PPP up hook script for update cloudflare DNS record
+#
+
+# PPP_LOCAL environment variable contents the loca IP for PPP connection
+
+# get cloudflare token from pass
+export CF_API_TOKEN=$(pass cloudflare.com/token)
+
+# get record id for record to update
+ZONE_NAME="walter.bio"
+RECORD_NAME="walter.bio"
+RECORD_TYPE="A"
+
+
+RECORD_ID=$(flarectl --json dns l --zone "${ZONE_NAME}" | jq -r ".[] | select(.Name==\"${RECORD_NAME}\" and .Type==\"${RECORD_TYPE}\") | .ID")
+
+if flarectl --json dns u --zone "${ZONE_NAME}" --id "${RECORD_ID}" --content "${PPP_LOCAL}"; then
+    echo "flarectl: record ${RECORD_NAME} updated with content: ${PPP_LOCAL}" | systemd-cat -p info
+else
+    echo "flarectl: unable to update record $RECORD_NAME" | systemd-cat -p err
+fi
+#+end_src
+
+** Requirements
+
+The script requires =flarectl= and =jq=, the installation process it's fairly symple:
+
+#+begin_src bash
+apt install jq
+#+end_src
+
+#+begin_src bash
+go install github.com/cloudflare/cloudflare-go/cmd/flarectl@latest
+#+end_src
+
+=flarectl= requires a CloudFlare token or API key for authentication, I am using =pass= to store the token encrypted:
+
+#+begin_src bash
+  apt install pass
+
+  pass init <email@of-the-gpg-key> 
+#+end_src
+
+* References
+
+- [[https://www.cloudflare.com/learning/dns/glossary/dynamic-dns/][What is dynamic DNS (DDNS)?]]
+- [[https://github.com/cloudflare/cloudflare-go/tree/master/cmd/flarectl][flarectl]]

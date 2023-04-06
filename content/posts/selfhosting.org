@@ -1,0 +1,63 @@
+#+title: WIP About Selfhosting
+#+subtitle: Kubernetes Cluster for SelfHosting
+#+date: 2022-01-15
+#+draft: true
+#+tags[]: selfhosting kubernetes cloudflare
+
+Selfhosting was never something I really wanted to try in the past, with github
+pages and other options around I really found it impractical since you have to
+take care of the components, patching, updating, keeping it up and running, also
+availability of the site can be compromise by a power outage or other external
+factors that are maybe out of your control.
+
+Recently I got a set of raspberry pi boxes to learn Kubernetes and the ecosystem
+around it, such as traefik for ingress controller, MetalLB for LoadBalancing.
+
+It definitely increases your motivation when you have something personal
+deployed there, and you do not have to pay to a cloud provider to keep it up and
+running.
+
+With modern Internet technologies to the home, for the ones that have the luck
+of living on a city where Internet providers can offer FTTH, the opportunities
+to explore self hosting initiatives became a reality.
+
+I will describe on this post the surface of how my self hosting works, and the
+components I am using to provide it, then I will write a series of post on each
+of the topics that deserve more deep diving.
+
+This will also help me out with my pratice on writting, I do not consider myself
+a very good writter, but as everything else, it's a matter of pratice and
+mistakes.
+
+I do really appreciate your feedback as a reader, please reach to me via email
+or feel free to leave your comments on a pull request for this blog post on
+github.
+
+
+* Blogging System
+
+I am exploring Hugo as blogging system, the main feature I like about hugo it's
+the posibility of writting the posts and articles using =org-mode=, since I am
+an emacs user from some years ago, it's more practical to me to write content
+using =org-mode=.
+
+I don't have too many tweaks on emacs related to hugo or blogging, but I am open
+to recommendations from more experienced people using =hugo= with =org-mode= and
+emacs to write content.
+
+I am using a hugo with the theme [[https://themes.gohugo.io/themes/hugo-theme-terminal/][hugo-therminal-theme]] which have very nice out
+of the box syntax highligthing for code blocks, which I am using a lot.
+
+#+begin_src go
+func main() {
+	http.HandleFunc("/", rootHandler)
+	err := http.ListenAndServe(":3000", nil)
+	if err != nil {
+		errorLogger.Panicf("unable to start http listener: %s", err)
+	}
+	infoLogger.Printf("Listening on port 3000")
+}
+#+end_src
+
+
+...

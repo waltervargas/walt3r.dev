@@ -1,0 +1,17 @@
+#+title: Unit testing C functions
+#+subtitle: subtitle
+#+date: <2023-04-06 Thu>
+#+draft: false
+#+tags[]: programming c tests tdd
+
+* Unit Testing C functions
+
+** The most simple framework =<check.h>=
+
+here some examples:
+
+#+begin_src C
+void main(void) {
+  write(1,"hola\n",5);
+}
+#+end_src

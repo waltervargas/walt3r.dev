@@ -1,0 +1,24 @@
+#+title: General Notes about Go
+#+date: <2023-04-06 Thu>
+#+booktoc: false
+#+draft: false
+#+tags[]: programming go tests tdd
+
+* General Notes about Go
+
+** Testing
+
+- run your test in parallel
+
+  #+begin_src go
+func TestMyFunction (t *testing.T) {
+	t.Parallel()
+	...
+}
+  #+end_src
+
+{{< tabs "uniqueid" >}}
+{{< tab "MacOS" >}} # MacOS Content {{< /tab >}}
+{{< tab "Linux" >}} # Linux Content {{< /tab >}}
+{{< tab "Windows" >}} # Windows Content {{< /tab >}}
+{{< /tabs >}}
