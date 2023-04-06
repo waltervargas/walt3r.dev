@@ -12,7 +12,7 @@
 
   #+begin_src go
 func TestMyFunction (t *testing.T) {
-	t.Parallel()
+    t.Parallel()
 	...
 }
   #+end_src
